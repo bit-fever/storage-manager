@@ -1,4 +1,4 @@
-module github.com/bit-fever/storage-server
+module github.com/bit-fever/storage-manager
 
 go 1.22
 

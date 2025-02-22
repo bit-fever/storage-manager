@@ -26,15 +26,13 @@ package main
 
 import (
 	"github.com/bit-fever/core/boot"
-	"github.com/bit-fever/core/req"
-	"github.com/bit-fever/storage-server/pkg/app"
-	"github.com/bit-fever/storage-server/pkg/service"
-	"log/slog"
+	"github.com/bit-fever/storage-manager/pkg/app"
+	"github.com/bit-fever/storage-manager/pkg/service"
 )
 
 //=============================================================================
 
-const component = "storage-server"
+const component = "storage-manager"
 
 //=============================================================================
 
@@ -51,8 +49,8 @@ func main() {
 //=============================================================================
 
 func initClients() {
-	slog.Info("Initializing clients...")
-	req.AddClient("bf", "ca.crt", "server.crt", "server.key")
+	//slog.Info("Initializing clients...")
+	//req.AddClient("bf", "ca.crt", "server.crt", "server.key")
 }
 
 //=============================================================================

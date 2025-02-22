@@ -25,7 +25,7 @@ THE SOFTWARE.
 package service
 
 import (
-	"github.com/bit-fever/storage-server/pkg/app"
+	"github.com/bit-fever/storage-manager/pkg/app"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 )
