@@ -22,43 +22,38 @@ THE SOFTWARE.
 */
 //=============================================================================
 
-package main
+package service
 
 import (
-	"github.com/bit-fever/core/boot"
-	"github.com/bit-fever/core/msg"
-	"github.com/bit-fever/core/req"
-	"github.com/bit-fever/storage-manager/pkg/app"
-	"github.com/bit-fever/storage-manager/pkg/backend"
-	"github.com/bit-fever/storage-manager/pkg/process/messaging/inventory"
-	"github.com/bit-fever/storage-manager/pkg/service"
-	"log/slog"
+	"github.com/bit-fever/core/auth"
+	"github.com/bit-fever/storage-manager/pkg/business"
 )
 
 //=============================================================================
 
-const component = "storage-manager"
-
-//=============================================================================
-
-func main() {
-	cfg := &app.Config{}
-	boot.ReadConfig(component, cfg)
-	logger := boot.InitLogger(component, &cfg.Application)
-	engine := boot.InitEngine(logger,    &cfg.Application)
-	initClients()
-	backend.InitStorage(cfg)
-	msg.InitMessaging(&cfg.Messaging)
-	service.Init(engine, cfg, logger)
-	inventory.InitMessageListener()
-	boot.RunHttpServer(engine, &cfg.Application)
+func getEquityChart(c *auth.Context) {
 }
 
 //=============================================================================
 
-func initClients() {
-	slog.Info("Initializing clients...")
-	req.AddClient("bf", "ca.crt", "server.crt", "server.key")
+func setEquityChart(c *auth.Context) {
+	tsId, err := c.GetIdFromUrl()
+
+	if err == nil {
+		equReq := business.EquityRequest{ Image:[]byte{} }
+		err = c.BindParamsFromBody(&equReq)
+
+		if err == nil {
+			err = business.SetEquityChart(c, tsId, &equReq)
+
+			if err == nil {
+				_ = c.ReturnObject("")
+				return
+			}
+		}
+	}
+
+	c.ReturnError(err)
 }
 
 //=============================================================================

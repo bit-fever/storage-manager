@@ -22,43 +22,34 @@ THE SOFTWARE.
 */
 //=============================================================================
 
-package main
-
-import (
-	"github.com/bit-fever/core/boot"
-	"github.com/bit-fever/core/msg"
-	"github.com/bit-fever/core/req"
-	"github.com/bit-fever/storage-manager/pkg/app"
-	"github.com/bit-fever/storage-manager/pkg/backend"
-	"github.com/bit-fever/storage-manager/pkg/process/messaging/inventory"
-	"github.com/bit-fever/storage-manager/pkg/service"
-	"log/slog"
-)
+package inventory
 
 //=============================================================================
-
-const component = "storage-manager"
-
+//=== Entities
 //=============================================================================
 
-func main() {
-	cfg := &app.Config{}
-	boot.ReadConfig(component, cfg)
-	logger := boot.InitLogger(component, &cfg.Application)
-	engine := boot.InitEngine(logger,    &cfg.Application)
-	initClients()
-	backend.InitStorage(cfg)
-	msg.InitMessaging(&cfg.Messaging)
-	service.Init(engine, cfg, logger)
-	inventory.InitMessageListener()
-	boot.RunHttpServer(engine, &cfg.Application)
+type TradingSystem struct {
+	Id                uint    `json:"id"`
+	Username          string  `json:"username"`
+	Name              string  `json:"name"`
+	Timeframe         int     `json:"timeframe"`
+	DataProductId     uint    `json:"dataProductId"`
+	BrokerProductId   uint    `json:"brokerProductId"`
+	TradingSessionId  uint    `json:"tradingSessionId"`
+	AgentProfileId    uint    `json:"agentProfileId" gorm:"default:null"`
+	StrategyType      string  `json:"strategyType"`
+	Overnight         bool    `json:"overnight"`
+	Tags              string  `json:"tags"`
+	ExternalRef       string  `json:"externalRef"`
+	Finalized         bool    `json:"finalized"`
 }
 
 //=============================================================================
+//=== Messages
+//=============================================================================
 
-func initClients() {
-	slog.Info("Initializing clients...")
-	req.AddClient("bf", "ca.crt", "server.crt", "server.key")
+type TradingSystemMessage struct {
+	TradingSystem  TradingSystem  `json:"tradingSystem"`
 }
 
 //=============================================================================

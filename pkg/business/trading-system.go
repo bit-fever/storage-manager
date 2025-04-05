@@ -22,43 +22,28 @@ THE SOFTWARE.
 */
 //=============================================================================
 
-package main
+package business
 
 import (
-	"github.com/bit-fever/core/boot"
-	"github.com/bit-fever/core/msg"
-	"github.com/bit-fever/core/req"
-	"github.com/bit-fever/storage-manager/pkg/app"
+	"github.com/bit-fever/core/auth"
 	"github.com/bit-fever/storage-manager/pkg/backend"
-	"github.com/bit-fever/storage-manager/pkg/process/messaging/inventory"
-	"github.com/bit-fever/storage-manager/pkg/service"
-	"log/slog"
 )
 
 //=============================================================================
 
-const component = "storage-manager"
-
 //=============================================================================
 
-func main() {
-	cfg := &app.Config{}
-	boot.ReadConfig(component, cfg)
-	logger := boot.InitLogger(component, &cfg.Application)
-	engine := boot.InitEngine(logger,    &cfg.Application)
-	initClients()
-	backend.InitStorage(cfg)
-	msg.InitMessaging(&cfg.Messaging)
-	service.Init(engine, cfg, logger)
-	inventory.InitMessageListener()
-	boot.RunHttpServer(engine, &cfg.Application)
-}
+func SetEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
+	c.Log.Info("SetEquityChart: Setting equity chart for trading system", "id", id)
 
-//=============================================================================
+	err := backend.WriteEquityChart(id, r.Image)
+	if err != nil {
+		c.Log.Info("SetEquityChart: Can't write equity chart", "id", id, "error", err)
+		return err
+	}
 
-func initClients() {
-	slog.Info("Initializing clients...")
-	req.AddClient("bf", "ca.crt", "server.crt", "server.key")
+	c.Log.Info("SetEquityChart: Equity chart set", "id", id)
+	return nil
 }
 
 //=============================================================================

@@ -28,9 +28,17 @@ import "github.com/bit-fever/core"
 
 //=============================================================================
 
+type Storage struct {
+	Folder string
+}
+
+//=============================================================================
+
 type Config struct {
 	core.Application
 	core.Authentication
+	core.Messaging
+	Storage
 }
 
 //=============================================================================
