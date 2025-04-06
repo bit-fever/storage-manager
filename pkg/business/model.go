@@ -27,7 +27,8 @@ package business
 //=============================================================================
 
 type EquityRequest struct {
-	Image []byte `json:"image"`
+	Username string `json:"username"`
+	Image    []byte `json:"image"`
 }
 
 //=============================================================================

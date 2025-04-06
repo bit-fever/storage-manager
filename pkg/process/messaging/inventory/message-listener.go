@@ -70,7 +70,7 @@ func handleMessage(m *msg.Message) bool {
 func addTradingSystem(tsm *TradingSystemMessage) bool {
 	slog.Info("addTradingSystem: Trading system change received", "id", tsm.TradingSystem.Id)
 
-	err := backend.AddTradingSystem(tsm.TradingSystem.Id)
+	err := backend.AddTradingSystem(tsm.TradingSystem.Id, tsm.TradingSystem.Username)
 
 	if err != nil {
 		slog.Error("addTradingSystem: Cannot add trading system", "id", tsm.TradingSystem.Id, "error", err.Error())
@@ -86,7 +86,7 @@ func addTradingSystem(tsm *TradingSystemMessage) bool {
 func deleteTradingSystem(tsm *TradingSystemMessage) bool {
 	slog.Info("deleteTradingSystem: Trading system deletion received", "id", tsm.TradingSystem.Id)
 
-	err := backend.DeleteTradingSystem(tsm.TradingSystem.Id)
+	err := backend.DeleteTradingSystem(tsm.TradingSystem.Id, tsm.TradingSystem.Username)
 
 	if err != nil {
 		slog.Error("deleteTradingSystem: Raised error while deleting trading system", "error", err.Error())

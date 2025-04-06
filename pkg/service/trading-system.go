@@ -32,6 +32,18 @@ import (
 //=============================================================================
 
 func getEquityChart(c *auth.Context) {
+	tsId, err := c.GetIdFromUrl()
+
+	if err == nil {
+		var data []byte
+		data,err = business.GetEquityChart(c, tsId)
+		if err == nil {
+			_ = c.ReturnData("image/png", data)
+			return
+		}
+	}
+
+	c.ReturnError(err)
 }
 
 //=============================================================================
@@ -45,7 +57,6 @@ func setEquityChart(c *auth.Context) {
 
 		if err == nil {
 			err = business.SetEquityChart(c, tsId, &equReq)
-
 			if err == nil {
 				_ = c.ReturnObject("")
 				return

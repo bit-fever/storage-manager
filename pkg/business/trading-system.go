@@ -31,12 +31,23 @@ import (
 
 //=============================================================================
 
+func GetEquityChart(c *auth.Context, id uint) ([]byte, error) {
+	data, err := backend.ReadEquityChart(c.Session.Username, id)
+
+	if err != nil {
+		return backend.GetDefaultEquityChart(), nil
+	}
+
+	return data, err
+}
+
 //=============================================================================
+// Called by Portfolio trader
 
 func SetEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
 	c.Log.Info("SetEquityChart: Setting equity chart for trading system", "id", id)
 
-	err := backend.WriteEquityChart(id, r.Image)
+	err := backend.WriteEquityChart(r.Username, id, r.Image)
 	if err != nil {
 		c.Log.Info("SetEquityChart: Can't write equity chart", "id", id, "error", err)
 		return err

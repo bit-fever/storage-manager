@@ -48,8 +48,13 @@ var Dirs = []string{ Doc, Code, Temp, Image, Report }
 
 //=============================================================================
 
-var folder string
+var folder         string
+var defEquityChart []byte
 
+//=============================================================================
+//===
+//=== Init functions
+//===
 //=============================================================================
 
 func InitStorage(cfg *app.Config) {
@@ -57,13 +62,20 @@ func InitStorage(cfg *app.Config) {
 
 	err := os.MkdirAll(folder, 0700)
 	core.ExitIfError(err)
+
+	defEquityChart, err = os.ReadFile("default/"+ EquityChart)
+	core.ExitIfError(err)
 }
 
 //=============================================================================
+//===
+//=== Public functions
+//===
+//=============================================================================
 
-func AddTradingSystem(id uint) error {
+func AddTradingSystem(id uint, username string) error {
 	sId := strconv.Itoa(int(id))
-	path:= folder +"/"+ sId +"/"
+	path:= folder +"/"+ username +"/"+ sId +"/"
 
 	for _, dir := range Dirs {
 		err := os.MkdirAll(path + dir, 0700)
@@ -77,15 +89,43 @@ func AddTradingSystem(id uint) error {
 
 //=============================================================================
 
-func DeleteTradingSystem(id uint) error {
+func DeleteTradingSystem(id uint, username string) error {
 	sId := strconv.Itoa(int(id))
-	return os.RemoveAll(folder +"/"+ sId)
+	return os.RemoveAll(folder +"/"+ username +"/"+ sId)
 }
 
 //=============================================================================
 
-func WriteEquityChart(id uint, data []byte) error {
-	return writeFile(id, Image, EquityChart, data)
+func ReadEquityChart(username string, id uint) ([]byte,error) {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		Image,
+		EquityChart,
+	}
+
+	return readFile(path...)
+}
+
+//=============================================================================
+
+func WriteEquityChart(username string, id uint, data []byte) error {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		Image,
+		EquityChart,
+	}
+
+	return writeFile(data, path...)
+}
+
+//=============================================================================
+
+func GetDefaultEquityChart() []byte {
+	return defEquityChart
 }
 
 //=============================================================================
@@ -94,9 +134,15 @@ func WriteEquityChart(id uint, data []byte) error {
 //===
 //=============================================================================
 
-func writeFile(id uint, path string, name string, data []byte) error {
-	sId  := strconv.Itoa(int(id))
-	file := filepath.Join(folder, sId, path, name)
+func readFile(path ...string) ([]byte, error) {
+	file := filepath.Join(path...)
+	return os.ReadFile(file)
+}
+
+//=============================================================================
+
+func writeFile(data []byte, path ...string) error {
+	file := filepath.Join(path...)
 	err  := os.WriteFile(file +".temp", data, 0600)
 
 	if err != nil {
