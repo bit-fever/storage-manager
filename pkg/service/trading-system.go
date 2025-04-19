@@ -31,6 +31,44 @@ import (
 
 //=============================================================================
 
+func getDocumentation(c *auth.Context) {
+	tsId, err := c.GetIdFromUrl()
+
+	if err == nil {
+		var res *business.DocumentationResponse
+		res,err = business.GetDocumentation(c, tsId)
+		if err == nil {
+			_ = c.ReturnObject(res)
+			return
+		}
+	}
+
+	c.ReturnError(err)
+}
+
+//=============================================================================
+
+func setDocumentation(c *auth.Context) {
+	tsId, err := c.GetIdFromUrl()
+
+	if err == nil {
+		docReq := business.DocumentationRequest{}
+		err = c.BindParamsFromBody(&docReq)
+
+		if err == nil {
+			err = business.SetDocumentation(c, tsId, &docReq)
+			if err == nil {
+				_ = c.ReturnObject("")
+				return
+			}
+		}
+	}
+
+	c.ReturnError(err)
+}
+
+//=============================================================================
+
 func getEquityChart(c *auth.Context) {
 	tsId, err := c.GetIdFromUrl()
 

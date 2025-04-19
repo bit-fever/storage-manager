@@ -35,14 +35,12 @@ import (
 
 func InitMessageListener() {
 	slog.Info("Starting inventory message listener...")
-
 	go msg.ReceiveMessages(msg.QuInventoryToStorage, handleMessage)
 }
 
 //=============================================================================
 
 func handleMessage(m *msg.Message) bool {
-
 	slog.Info("New message received", "source", m.Source, "type", m.Type)
 
 	if m.Source == msg.SourceTradingSystem {
@@ -54,7 +52,10 @@ func handleMessage(m *msg.Message) bool {
 		}
 
 		if m.Type == msg.TypeCreate {
-			return addTradingSystem(&tsm)
+			return addTradingSystem   (&tsm)
+		}
+		if m.Type == msg.TypeUpdate {
+			return updateTradingSystem(&tsm)
 		}
 		if m.Type == msg.TypeDelete {
 			return deleteTradingSystem(&tsm)
@@ -68,14 +69,40 @@ func handleMessage(m *msg.Message) bool {
 //=============================================================================
 
 func addTradingSystem(tsm *TradingSystemMessage) bool {
-	slog.Info("addTradingSystem: Trading system change received", "id", tsm.TradingSystem.Id)
+	slog.Info("addTradingSystem: New trading system received", "id", tsm.TradingSystem.Id, "name", tsm.TradingSystem.Name)
 
-	err := backend.AddTradingSystem(tsm.TradingSystem.Id, tsm.TradingSystem.Username)
+	ts := &backend.TradingSystem{
+		Id      : tsm.TradingSystem.Id,
+		Username: tsm.TradingSystem.Username,
+		Name    : tsm.TradingSystem.Name,
+	}
+	err := backend.AddTradingSystem(ts)
 
 	if err != nil {
-		slog.Error("addTradingSystem: Cannot add trading system", "id", tsm.TradingSystem.Id, "error", err.Error())
+		slog.Error("addTradingSystem: Cannot add the trading system", "id", tsm.TradingSystem.Id, "error", err.Error())
 	} else {
 		slog.Info("addTradingSystem: Operation complete", "id", tsm.TradingSystem.Id)
+	}
+
+	return err == nil
+}
+
+//=============================================================================
+
+func updateTradingSystem(tsm *TradingSystemMessage) bool {
+	slog.Info("updateTradingSystem: Trading system change received", "id", tsm.TradingSystem.Id, "name", tsm.TradingSystem.Name)
+
+	ts := &backend.TradingSystem{
+		Id      : tsm.TradingSystem.Id,
+		Username: tsm.TradingSystem.Username,
+		Name    : tsm.TradingSystem.Name,
+	}
+	err := backend.UpdateTradingSystem(ts)
+
+	if err != nil {
+		slog.Error("updateTradingSystem: Cannot update the trading system", "id", tsm.TradingSystem.Id, "error", err.Error())
+	} else {
+		slog.Info("updateTradingSystem: Operation complete", "id", tsm.TradingSystem.Id)
 	}
 
 	return err == nil

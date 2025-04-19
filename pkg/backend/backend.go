@@ -25,6 +25,7 @@ THE SOFTWARE.
 package backend
 
 import (
+	"encoding/json"
 	"github.com/bit-fever/core"
 	"github.com/bit-fever/storage-manager/pkg/app"
 	"os"
@@ -35,16 +36,16 @@ import (
 //=============================================================================
 
 const (
-	Doc    = "doc"
 	Code   = "code"
-	Temp   = "temp"
 	Image  = "image"
 	Report = "report"
 
+	InfoFile    = "info.json"
+	DocFile     = "documentation.txt"
 	EquityChart = "equity-chart.png"
 )
 
-var Dirs = []string{ Doc, Code, Temp, Image, Report }
+var Dirs = []string{ Code, Image, Report }
 
 //=============================================================================
 
@@ -73,9 +74,9 @@ func InitStorage(cfg *app.Config) {
 //===
 //=============================================================================
 
-func AddTradingSystem(id uint, username string) error {
-	sId := strconv.Itoa(int(id))
-	path:= folder +"/"+ username +"/"+ sId +"/"
+func AddTradingSystem(ts *TradingSystem) error {
+	sId := strconv.Itoa(int(ts.Id))
+	path:= folder +"/"+ ts.Username +"/"+ sId +"/"
 
 	for _, dir := range Dirs {
 		err := os.MkdirAll(path + dir, 0700)
@@ -84,7 +85,18 @@ func AddTradingSystem(id uint, username string) error {
 		}
 	}
 
-	return nil
+	err := SetTradingSystemInfo(ts)
+	if err != nil {
+		return err
+	}
+
+	return SetTradingSystemDoc(ts.Username, ts.Id, "")
+}
+
+//=============================================================================
+
+func UpdateTradingSystem(ts *TradingSystem) error {
+	return SetTradingSystemInfo(ts)
 }
 
 //=============================================================================
@@ -95,13 +107,14 @@ func DeleteTradingSystem(id uint, username string) error {
 }
 
 //=============================================================================
+//=== Equity chart
+//=============================================================================
 
 func ReadEquityChart(username string, id uint) ([]byte,error) {
 	path := []string{
 		folder,
 		username,
 		strconv.Itoa(int(id)),
-		Image,
 		EquityChart,
 	}
 
@@ -115,7 +128,6 @@ func WriteEquityChart(username string, id uint, data []byte) error {
 		folder,
 		username,
 		strconv.Itoa(int(id)),
-		Image,
 		EquityChart,
 	}
 
@@ -126,6 +138,83 @@ func WriteEquityChart(username string, id uint, data []byte) error {
 
 func GetDefaultEquityChart() []byte {
 	return defEquityChart
+}
+
+//=============================================================================
+//=== Documentation
+//=============================================================================
+
+func GetTradingSystemDoc(username string, id uint) (string, error) {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		DocFile,
+	}
+
+	data, err := readFile(path...)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+//=============================================================================
+
+func SetTradingSystemDoc(username string, id uint, doc string) error {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		DocFile,
+	}
+
+	return writeFile([]byte(doc), path...)
+}
+
+//=============================================================================
+//=== Information
+//=============================================================================
+
+func GetTradingSystemInfo(username string, id uint) (*TradingSystem, error) {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		InfoFile,
+	}
+
+	data, err := readFile(path...)
+	if err != nil {
+		return nil, err
+	}
+
+	ts := TradingSystem{}
+	err = json.Unmarshal(data, &ts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ts, nil
+}
+
+//=============================================================================
+
+func SetTradingSystemInfo(ts *TradingSystem) error {
+	path := []string{
+		folder,
+		ts.Username,
+		strconv.Itoa(int(ts.Id)),
+		InfoFile,
+	}
+
+	data, err := json.Marshal(ts)
+	if err != nil {
+		return err
+	}
+
+	return writeFile(data, path...)
 }
 
 //=============================================================================

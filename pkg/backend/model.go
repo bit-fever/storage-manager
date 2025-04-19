@@ -22,27 +22,14 @@ THE SOFTWARE.
 */
 //=============================================================================
 
-package business
+package backend
 
 //=============================================================================
 
-type DocumentationRequest struct {
-	Documentation string `json:"documentation"`
-}
-
-//=============================================================================
-
-type DocumentationResponse struct {
-	Id            uint   `json:"id"`
-	Name          string `json:"name"`
-	Documentation string `json:"documentation"`
-}
-
-//=============================================================================
-
-type EquityRequest struct {
+type TradingSystem struct {
+	Id       uint   `json:"id"`
 	Username string `json:"username"`
-	Image    []byte `json:"image"`
+	Name     string `json:"name"`
 }
 
 //=============================================================================

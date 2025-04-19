@@ -31,6 +31,48 @@ import (
 
 //=============================================================================
 
+func GetDocumentation(c *auth.Context, id uint) (*DocumentationResponse, error) {
+	c.Log.Info("GetDocumentation: Getting documentation for trading system", "id", id)
+
+	doc,err := backend.GetTradingSystemDoc(c.Session.Username, id)
+	if err != nil {
+		c.Log.Error("GetDocumentation: Cannot retrieve documentation for trading system", "id", id, "error", err)
+		return nil, err
+	}
+
+	var info *backend.TradingSystem
+	info,err = backend.GetTradingSystemInfo(c.Session.Username, id)
+	if err != nil {
+		c.Log.Error("GetDocumentation: Cannot retrieve info for trading system", "id", id, "error", err)
+		return nil, err
+	}
+
+	c.Log.Info("GetDocumentation: Operation complete", "id", id)
+
+	return &DocumentationResponse{
+		Id           : id,
+		Name         : info.Name,
+		Documentation: doc,
+	}, nil
+}
+
+//=============================================================================
+
+func SetDocumentation(c *auth.Context, id uint, r *DocumentationRequest) error {
+	c.Log.Info("SetDocumentation: Setting documentation for trading system", "id", id)
+	err := backend.SetTradingSystemDoc(c.Session.Username, id, r.Documentation)
+
+	if err != nil {
+		c.Log.Info("SetDocumentation: Cannot store documentation for trading system", "id", id, "error", err)
+	} else {
+		c.Log.Info("SetDocumentation: Operation complete", "id", id)
+	}
+
+	return err
+}
+
+//=============================================================================
+
 func GetEquityChart(c *auth.Context, id uint) ([]byte, error) {
 	data, err := backend.ReadEquityChart(c.Session.Username, id)
 

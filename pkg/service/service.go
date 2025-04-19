@@ -39,8 +39,11 @@ func Init(router *gin.Engine, cfg *app.Config, logger *slog.Logger) {
 
 	ctrl := auth.NewOidcController(cfg.Authentication.Authority, req.GetClient("bf"), logger, cfg)
 
-	router.GET   ("/api/storage/v1/trading-systems/:id/equity-chart",  ctrl.Secure(getEquityChart, roles.Admin_User))
-	router.POST  ("/api/storage/v1/trading-systems/:id/equity-chart",  ctrl.Secure(setEquityChart, roles.Service))
+	router.GET("/api/storage/v1/trading-systems/:id/documentation",  ctrl.Secure(getDocumentation, roles.Admin_User))
+	router.PUT("/api/storage/v1/trading-systems/:id/documentation",  ctrl.Secure(setDocumentation, roles.Admin_User))
+
+	router.GET("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(getEquityChart, roles.Admin_User))
+	router.PUT("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(setEquityChart, roles.Service))
 }
 
 //=============================================================================
