@@ -100,3 +100,18 @@ func SetEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
 }
 
 //=============================================================================
+// Called by Portfolio trader
+
+func DeleteEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
+	c.Log.Info("DeleteEquityChart: Delete equity chart for trading system", "id", id, "username", r.Username)
+	err := backend.DeleteEquityChart(r.Username, id)
+
+	if err != nil {
+		c.Log.Error("DeleteEquityChart: Cannot delete equity chart", "id", id, "username", r.Username, "error", err)
+	} else {
+		c.Log.Error("DeleteEquityChart: Equity chart deleted", "id", id, "username", r.Username)
+	}
+	return err
+}
+
+//=============================================================================

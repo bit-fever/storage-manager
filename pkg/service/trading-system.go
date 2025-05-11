@@ -106,3 +106,24 @@ func setEquityChart(c *auth.Context) {
 }
 
 //=============================================================================
+
+func deleteEquityChart(c *auth.Context) {
+	tsId, err := c.GetIdFromUrl()
+
+	if err == nil {
+		equReq := business.EquityRequest{ Image:[]byte{} }
+		err = c.BindParamsFromBody(&equReq)
+
+		if err == nil {
+			err = business.DeleteEquityChart(c, tsId, &equReq)
+			if err == nil {
+				_ = c.ReturnObject("")
+				return
+			}
+		}
+	}
+
+	c.ReturnError(err)
+}
+
+//=============================================================================

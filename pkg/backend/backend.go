@@ -70,7 +70,7 @@ func InitStorage(cfg *app.Config) {
 
 //=============================================================================
 //===
-//=== Public functions
+//=== Public functionsk
 //===
 //=============================================================================
 
@@ -132,6 +132,19 @@ func WriteEquityChart(username string, id uint, data []byte) error {
 	}
 
 	return writeFile(data, path...)
+}
+
+//=============================================================================
+
+func DeleteEquityChart(username string, id uint) error {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		EquityChart,
+	}
+
+	return deleteFile(path...)
 }
 
 //=============================================================================
@@ -248,6 +261,13 @@ func writeFile(data []byte, path ...string) error {
 	}
 
 	return os.Rename(file +".temp", file)
+}
+
+//=============================================================================
+
+func deleteFile(path ...string) error {
+	file := filepath.Join(path...)
+	return os.Remove(file)
 }
 
 //=============================================================================
