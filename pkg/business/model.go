@@ -41,8 +41,16 @@ type DocumentationResponse struct {
 //=============================================================================
 
 type EquityRequest struct {
-	Username string `json:"username"`
-	Image    []byte `json:"image"`
+	Username string            `json:"username"`
+	Images   map[string][]byte `json:"images"`
+}
+
+//=============================================================================
+
+func NewEquityRequest() *EquityRequest {
+	return &EquityRequest{
+		Images : map[string][]byte{},
+	}
 }
 
 //=============================================================================

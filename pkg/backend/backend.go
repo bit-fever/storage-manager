@@ -31,6 +31,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 //=============================================================================
@@ -110,12 +111,38 @@ func DeleteTradingSystem(id uint, username string) error {
 //=== Equity chart
 //=============================================================================
 
-func ReadEquityChart(username string, id uint) ([]byte,error) {
+func GetEquityChartTypes(username string, id uint) ([]string, error) {
 	path := []string{
 		folder,
 		username,
 		strconv.Itoa(int(id)),
-		EquityChart,
+	}
+
+	files,err := getFiles(path...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var types []string
+
+	for _, file := range files {
+		if isEquityChartName(file.Name()) {
+			types = append(types, getChartType(file.Name()))
+		}
+	}
+
+	return types, nil
+}
+
+//=============================================================================
+
+func ReadEquityChart(username string, id uint, chartType string) ([]byte,error) {
+	path := []string{
+		folder,
+		username,
+		strconv.Itoa(int(id)),
+		buildEquityChartName(chartType),
 	}
 
 	return readFile(path...)
@@ -123,12 +150,12 @@ func ReadEquityChart(username string, id uint) ([]byte,error) {
 
 //=============================================================================
 
-func WriteEquityChart(username string, id uint, data []byte) error {
+func WriteEquityChart(username string, id uint, data []byte, chartType string) error {
 	path := []string{
 		folder,
 		username,
 		strconv.Itoa(int(id)),
-		EquityChart,
+		buildEquityChartName(chartType),
 	}
 
 	return writeFile(data, path...)
@@ -136,12 +163,12 @@ func WriteEquityChart(username string, id uint, data []byte) error {
 
 //=============================================================================
 
-func DeleteEquityChart(username string, id uint) error {
+func DeleteEquityChart(username string, id uint, chartType string) error {
 	path := []string{
 		folder,
 		username,
 		strconv.Itoa(int(id)),
-		EquityChart,
+		buildEquityChartName(chartType),
 	}
 
 	return deleteFile(path...)
@@ -236,6 +263,13 @@ func SetTradingSystemInfo(ts *TradingSystem) error {
 //===
 //=============================================================================
 
+func getFiles(path ...string) ([]os.DirEntry, error) {
+	dir := filepath.Join(path...)
+	return os.ReadDir(dir)
+}
+
+//=============================================================================
+
 func readFile(path ...string) ([]byte, error) {
 	file := filepath.Join(path...)
 	return os.ReadFile(file)
@@ -268,6 +302,25 @@ func writeFile(data []byte, path ...string) error {
 func deleteFile(path ...string) error {
 	file := filepath.Join(path...)
 	return os.Remove(file)
+}
+
+//=============================================================================
+
+func buildEquityChartName(chartType string) string {
+	return chartType +"-"+ EquityChart
+}
+
+//=============================================================================
+
+func isEquityChartName(fileName string) bool {
+	return strings.HasSuffix(fileName, "-"+ EquityChart)
+}
+
+//=============================================================================
+
+func getChartType(fileName string) string {
+	index := strings.Index(fileName, "-"+ EquityChart)
+	return fileName[0:index]
 }
 
 //=============================================================================

@@ -73,8 +73,8 @@ func SetDocumentation(c *auth.Context, id uint, r *DocumentationRequest) error {
 
 //=============================================================================
 
-func GetEquityChart(c *auth.Context, id uint) ([]byte, error) {
-	data, err := backend.ReadEquityChart(c.Session.Username, id)
+func GetEquityChart(c *auth.Context, id uint, chartType string) ([]byte, error) {
+	data, err := backend.ReadEquityChart(c.Session.Username, id, chartType)
 
 	if err != nil {
 		return backend.GetDefaultEquityChart(), nil
@@ -86,31 +86,41 @@ func GetEquityChart(c *auth.Context, id uint) ([]byte, error) {
 //=============================================================================
 // Called by Portfolio trader
 
-func SetEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
-	c.Log.Info("SetEquityChart: Setting equity chart for trading system", "id", id)
+func SetEquityCharts(c *auth.Context, id uint, r *EquityRequest) error {
+	c.Log.Info("SetEquityCharts: Setting equity charts for trading system", "id", id)
 
-	err := backend.WriteEquityChart(r.Username, id, r.Image)
-	if err != nil {
-		c.Log.Info("SetEquityChart: Can't write equity chart", "id", id, "error", err)
-		return err
+	for chartType,data := range r.Images {
+		err := backend.WriteEquityChart(r.Username, id, data, chartType)
+		if err != nil {
+			c.Log.Info("SetEquityCharts: Can't write equity chart", "id", id, "error", err, "type", chartType)
+			return err
+		}
 	}
 
-	c.Log.Info("SetEquityChart: Equity chart set", "id", id)
+	c.Log.Info("SetEquityCharts: Equity charts set", "id", id)
 	return nil
 }
 
 //=============================================================================
 // Called by Portfolio trader
 
-func DeleteEquityChart(c *auth.Context, id uint, r *EquityRequest) error {
-	c.Log.Info("DeleteEquityChart: Delete equity chart for trading system", "id", id, "username", r.Username)
-	err := backend.DeleteEquityChart(r.Username, id)
+func DeleteEquityCharts(c *auth.Context, id uint, r *EquityRequest) error {
+	c.Log.Info("DeleteEquityCharts: Delete equity chart for trading system", "id", id, "username", r.Username)
 
-	if err != nil {
-		c.Log.Error("DeleteEquityChart: Cannot delete equity chart", "id", id, "username", r.Username, "error", err)
-	} else {
-		c.Log.Error("DeleteEquityChart: Equity chart deleted", "id", id, "username", r.Username)
+	types,err := backend.GetEquityChartTypes(r.Username, id)
+	if err == nil {
+		for _, ct := range types {
+			err = backend.DeleteEquityChart(r.Username, id, ct)
+
+			if err != nil {
+				c.Log.Error("DeleteEquityCharts: Cannot delete equity chart", "id", id, "username", r.Username, "error", err, "type", ct)
+				return err
+			}
+		}
+
+		c.Log.Error("DeleteEquityCharts: Equity charts deleted", "id", id, "username", r.Username)
 	}
+
 	return err
 }
 

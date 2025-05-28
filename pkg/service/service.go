@@ -42,9 +42,9 @@ func Init(router *gin.Engine, cfg *app.Config, logger *slog.Logger) {
 	router.GET("/api/storage/v1/trading-systems/:id/documentation",  ctrl.Secure(getDocumentation, roles.Admin_User))
 	router.PUT("/api/storage/v1/trading-systems/:id/documentation",  ctrl.Secure(setDocumentation, roles.Admin_User))
 
-	router.GET   ("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(getEquityChart,    roles.Admin_User))
-	router.PUT   ("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(setEquityChart,    roles.Service))
-	router.DELETE("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(deleteEquityChart, roles.Service))
+	router.GET   ("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(getEquityChart,     roles.Admin_User))
+	router.PUT   ("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(setEquityCharts,    roles.Service))
+	router.DELETE("/api/storage/v1/trading-systems/:id/equity-chart",   ctrl.Secure(deleteEquityCharts, roles.Service))
 }
 
 //=============================================================================

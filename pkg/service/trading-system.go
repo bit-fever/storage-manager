@@ -71,10 +71,10 @@ func setDocumentation(c *auth.Context) {
 
 func getEquityChart(c *auth.Context) {
 	tsId, err := c.GetIdFromUrl()
-
 	if err == nil {
+		chartType := c.GetParamAsString("type", "unknown")
 		var data []byte
-		data,err = business.GetEquityChart(c, tsId)
+		data,err = business.GetEquityChart(c, tsId, chartType)
 		if err == nil {
 			_ = c.ReturnData("image/png", data)
 			return
@@ -86,15 +86,15 @@ func getEquityChart(c *auth.Context) {
 
 //=============================================================================
 
-func setEquityChart(c *auth.Context) {
+func setEquityCharts(c *auth.Context) {
 	tsId, err := c.GetIdFromUrl()
 
 	if err == nil {
-		equReq := business.EquityRequest{ Image:[]byte{} }
-		err = c.BindParamsFromBody(&equReq)
+		equReq := business.NewEquityRequest()
+		err = c.BindParamsFromBody(equReq)
 
 		if err == nil {
-			err = business.SetEquityChart(c, tsId, &equReq)
+			err = business.SetEquityCharts(c, tsId, equReq)
 			if err == nil {
 				_ = c.ReturnObject("")
 				return
@@ -107,15 +107,15 @@ func setEquityChart(c *auth.Context) {
 
 //=============================================================================
 
-func deleteEquityChart(c *auth.Context) {
+func deleteEquityCharts(c *auth.Context) {
 	tsId, err := c.GetIdFromUrl()
 
 	if err == nil {
-		equReq := business.EquityRequest{ Image:[]byte{} }
-		err = c.BindParamsFromBody(&equReq)
+		equReq := business.NewEquityRequest()
+		err = c.BindParamsFromBody(equReq)
 
 		if err == nil {
-			err = business.DeleteEquityChart(c, tsId, &equReq)
+			err = business.DeleteEquityCharts(c, tsId, equReq)
 			if err == nil {
 				_ = c.ReturnObject("")
 				return
